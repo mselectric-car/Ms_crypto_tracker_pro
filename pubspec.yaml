@@ -1,0 +1,22 @@
+name: ms_crypto_tracker_pro
+description: MS Crypto Tracker Pro v3.1 stable Android phone upload version.
+publish_to: "none"
+version: 3.2.0+6
+
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.2
+  shared_preferences: ^2.3.2
+  url_launcher: ^6.3.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+
+flutter:
+  uses-material-design: true
