@@ -1,0 +1,42 @@
+name: Build MS Crypto Tracker Pro v3.1 APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Create Flutter Android project
+        run: flutter create generated_app --platforms=android --org com.mstech --project-name ms_crypto_tracker_pro
+
+      - name: Copy app files
+        run: |
+          cp main.dart generated_app/lib/main.dart
+          cp pubspec.yaml generated_app/pubspec.yaml
+
+      - name: Add Android internet permission
+        run: sed -i '/<manifest/a\    <uses-permission android:name="android.permission.INTERNET" />' generated_app/android/app/src/main/AndroidManifest.xml
+
+      - name: Install dependencies
+        working-directory: generated_app
+        run: flutter pub get
+
+      - name: Analyze
+        working-directory: generated_app
+        run: flutter analyze --no-fatal-infos
+
+      - name: Build APK
