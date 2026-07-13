@@ -1,4 +1,4 @@
-name: Build MS Crypto Tracker Pro v3.1 APK
+name: Build Crypto APK
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
       - main
 
 jobs:
-  build-android:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,23 +18,36 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: stable
-          cache: true
 
-      - name: Create Flutter Android project
-        run: flutter create generated_app --platforms=android --org com.mstech --project-name ms_crypto_tracker_pro
+      - name: Create project
+        run: |
+          flutter create generated_app --platforms=android --org com.mstech --project-name ms_crypto_tracker_pro
 
-      - name: Copy app files
+      - name: Copy files
         run: |
           cp main.dart generated_app/lib/main.dart
           cp pubspec.yaml generated_app/pubspec.yaml
 
-      - name: Add Android internet permission
-        run: sed -i '/<manifest/a\    <uses-permission android:name="android.permission.INTERNET" />' generated_app/android/app/src/main/AndroidManifest.xml
+      - name: Add internet permission
+        run: |
+          sed -i '2i\    <uses-permission android:name="android.permission.INTERNET" />' generated_app/android/app/src/main/AndroidManifest.xml
 
-      - name: Install dependencies
+      - name: Install packages
         working-directory: generated_app
-        run: flutter pub get
+        run: |
+          flutter pub get
 
+      - name: Build APK
+        working-directory: generated_app
+        run: |
+          flutter build apk --release
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MS-Crypto-Tracker-Pro-APK
+          path: generated_app/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
       - name: Analyze
         working-directory: generated_app
         run: flutter analyze --no-fatal-infos
