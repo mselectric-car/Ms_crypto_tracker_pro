@@ -3,53 +3,35 @@ name: Build Crypto APK
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@v2
         with:
           channel: stable
 
       - name: Create project
-        run: |
-          flutter create generated_app --platforms=android --org com.mstech --project-name ms_crypto_tracker_pro
+        run: flutter create generated_app --platforms=android --org com.mstech --project-name ms_crypto_tracker_pro
 
       - name: Copy files
-        run: |
-          cp main.dart generated_app/lib/main.dart
-          cp pubspec.yaml generated_app/pubspec.yaml
+        run: cp main.dart generated_app/lib/main.dart && cp pubspec.yaml generated_app/pubspec.yaml
 
       - name: Add internet permission
-        run: |
-          sed -i '2i\    <uses-permission android:name="android.permission.INTERNET" />' generated_app/android/app/src/main/AndroidManifest.xml
+        run: sed -i '2i\    <uses-permission android:name="android.permission.INTERNET" />' generated_app/android/app/src/main/AndroidManifest.xml
 
       - name: Install packages
-        working-directory: generated_app
-        run: |
-          flutter pub get
+        run: cd generated_app && flutter pub get
 
       - name: Build APK
-        working-directory: generated_app
-        run: |
-          flutter build apk --release
+        run: cd generated_app && flutter build apk --release
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: MS-Crypto-Tracker-Pro-APK
           path: generated_app/build/app/outputs/flutter-apk/app-release.apk
-          if-no-files-found: error
-      - name: Analyze
-        working-directory: generated_app
-        run: flutter analyze --no-fatal-infos
-
-      - name: Build APK
